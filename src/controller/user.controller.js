@@ -4,9 +4,20 @@ import { User } from "../models/user.models.js";
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 
+const generateAccessAndRefreshTokes =  async(userID)=>{
+  try {
+    const user = await User.findById(userID);
+    const accessToken = await user.generateAccessToken()
+    const refreshToken = await user.generateRefershToken()
+        user.refreshToken = refreshToken;
+     await user.save({validateBeforeSave : false})
+    return {accessToken , refreshToken}
+  } catch (error) {
+     throw new ApiError(500, 'Something went wrong while generating Access and refresh token')
+  }
+}
 
 const registerUser = asyncHandler(async(req,res)=>{
-
 // get user details from frontend
 // validation — not empty
 // check if user already exists: username, email
@@ -16,10 +27,6 @@ const registerUser = asyncHandler(async(req,res)=>{
 // remove password and refresh token field from response
 // check for user creation
 // return res
-
-
-
-
   const {username , email, fullName , password} =  req.body;
   
     if( 
@@ -35,8 +42,9 @@ const registerUser = asyncHandler(async(req,res)=>{
     if(existUser){
          throw new ApiError(409 ,"The User is Already Exist")
     }
-     const avatarLocalPath =  req.files?.avatar[0]?.path
+     const avatarLocalPath =  req.files?.avatar?.[0]?.path
      const coverImageLocalPath  = req.files?.coverImage?.[0]?.path
+
      console.log("the avtarlink-",avatarLocalPath)
 
      if(!avatarLocalPath ){
@@ -81,8 +89,74 @@ const registerUser = asyncHandler(async(req,res)=>{
    
 })
 
+const loginUser  = asyncHandler(async(req,res)=>{
+//get the data from req body
+// check data is valid or not 
+//find the user 
+// if the user is not return error 
+// if user exist check password  correct or not 
+// all rights then generate access and refresh token 
+// send them to user  as cookies
+
+ const {username , email , password} = req.body;
+  
+   if(!username  || !email){
+     throw new ApiError(400,"Username or email is required ")
+   }
+   const user = User.findOne({
+     $: [{email} , {username}]
+   })
+
+   if(!user){
+     throw new ApiError(404, "User does not exist ")
+   }
+
+    const passwordCheck = await user.isPasswordCorrect(password);
+
+    if(!passwordCheck){
+          throw new ApiError(404, "User does not exist ")
+    }
+    
+    const{accessToken , refreshToken} = await generateAccessAndRefreshTokes(user._id);
+
+    const loggedinUser  = await User.findById(user._id).select("-password -refreshToken")
+
+    const options = {
+      httpOnly  : true,
+      secure : true
+    }
+     res
+
+     return res
+     .status(200)
+     .cookie("accessToken", accessToken, options)
+     .cookie("refreshToken",refreshToken,options)
+     .json(
+       new ApiResponse(200, 
+        {
+          user : loggedinUser, accessToken,refreshToken
+        },
+        "User loged in successfully"
+       ) 
+     )
+      new ApiResponse(200,[{accessToken}, {refreshToken}],"user is logged in ")
+     
 
 
 
 
-export {registerUser}
+
+
+})
+
+
+
+
+const logOutUser = asyncHandler(async(req,res)=>{
+
+})
+
+
+
+
+export {registerUser ,loginUser , logOutUser}
