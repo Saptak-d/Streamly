@@ -4,7 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { User } from "../models/user.models";
 
 
-export const verifyJwt = asyncHandler(async(req,res,next)=>{
+export const verifyJwt = asyncHandler(async(req,_,next)=>{
 
     try {
         const {token} = req.cokkie?.accessToken || req.header("authorization")
