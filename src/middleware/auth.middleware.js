@@ -5,12 +5,9 @@ import { User } from "../models/user.models.js";
 
 
 export const verifyJwt = asyncHandler( async(req,res,next)=>{
-
-    console.log("cookie is ---", req.cookies)
-
     try {
         const token = req.cookies?.accessToken ||  req.header("Authorization")?.replace("Bearer ", "")
-        console.log("token is ---",token)
+      
         
         if(!token){
             new ApiError(401, "The user need to login First")
@@ -18,7 +15,7 @@ export const verifyJwt = asyncHandler( async(req,res,next)=>{
 
         const decorded =  jwt.verify(token , process.env.ACCCESS_TOKEN_SECRECT)
 
-        console.log("the decorded data - ",decorded)
+        
         const user  = await User.findById(decorded._id).select("-password -refreshtoken")
     
         if(!user){
@@ -30,3 +27,4 @@ export const verifyJwt = asyncHandler( async(req,res,next)=>{
         new ApiError(401,error?.message || "invalid Access Token")
     }
 } )
+
