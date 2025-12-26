@@ -187,18 +187,16 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
    try {
     const decordeToken = jwt.verify(incommingRefreshToken ,process.env.REFRESH_TOKEN_SECRECT);
  
-    if(decordeToken){
-       throw new ApiError(500,"Unauthorized request");
-    }
+   
  
      const user = await User.findById(decordeToken._id).select("-password");
      
       if(!user){
-       throw new ApiError(500,"Unauthorized request");
+       throw new ApiError(401,"Unauthorized request");
       }
  
       if(user?.refreshToken !== incommingRefreshToken){
-         throw new ApiError(500,"Unauthorized request");
+         throw new ApiError(401,"Unauthorized request");
       }
  
       const{accessToken , refreshToken} = generateAccessAndRefreshTokes(user._id)
@@ -220,7 +218,7 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
        )
       )
    } catch (error) {
-     throw new ApiError(500,error?.message || "Invalid refresh Token")
+     throw new ApiError(401,error?.message || "Invalid refresh Token")
    }
 
 })
