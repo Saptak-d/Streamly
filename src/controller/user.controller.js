@@ -230,43 +230,84 @@ const changeCurrentPassword = asyncHandler(async(req,res)=>{
    if(!id){
       throw new ApiError(401,"Invalid Access")
    }
-    if(!newPassword){
-        throw new ApiError(401,"Invalid User")
-    }
 
-    
+     if (!oldPassword || !newPassword) {
+    throw new ApiError(400, "Old password and new password are required");
+  }
 
-   const  existUser  = User.findById(id);
+   const  existUser  = await User.findById(id);
 
-    const ispasswordCOrrect = existUser.isPasswordCorrect(oldPassword)
+     if(!existUser){
+      throw new ApiError(401,"User not found")
+     }
+
+
+    const ispasswordCOrrect = await existUser.isPasswordCorrect(oldPassword)
     if(!ispasswordCOrrect){
-        throw new ApiError(401,"Invalid User")
-    
-    }
-
-   if(!existUser){
-     throw new ApiError(401,"Invalid Access ");
-   }
-
-    if(existUser.password == newPassword){
-      throw new ApiError(500,"Passwod should be different from Previous password")
-    }
+        throw new ApiError(403,"Invalid old password ")
+    } 
     
 
+     const isSamePassword = await existUser.isPasswordCorrect(newPassword);
+
+  if (isSamePassword) {
+    throw new ApiError(
+      400,
+      "New password must be different from previous password"
+    );
+  }
+    
    existUser.password = newPassword;
+    existUser.refreshToken = null; 
+
       await existUser.save({validateBeforeSave : false});
 
    return res.status(200)
    .json(
     new ApiResponse(200,{},"Passsword Change Successfully")
    )
+})
 
+const getCurrentUser = asyncHandler(async(req,res)=>{
+  
+   const user  = req?.user;
+    if(!user){
+        throw new ApiError(401, "Unauthorized")
+    }
+    
+   return res.status(200)
+   .json(
+      new ApiResponse(200,user," Current User is fetched SuccessFully")
+   )
 
+  })
 
+const updateAccountDetails = asyncHandler(async(req,res)=>{
 
+  const  {fullName ,email} = req.body;
 
+   if(!fullName || ! email){
+      throw new ApiError(400, "All fields are required ")
+   }
 
-   
+    const user  = await User.findByIdAndUpdate(
+      req.user?._id,
+      {
+        $set :{
+          fullName,
+          email
+        }
+      },
+      {
+        new : true
+      }
+    ).select("-password")
+
+    return res
+    .status(200)
+    .json(
+      new ApiResponse(200,user,"User Details is changed successfully ")
+    )
 
 
 
@@ -276,4 +317,12 @@ const changeCurrentPassword = asyncHandler(async(req,res)=>{
 
 
 
-export {registerUser ,loginUser , logOutUser , refreshAccessToken}
+
+export {
+registerUser,
+loginUser,
+logOutUser ,
+refreshAccessToken,
+changeCurrentPassword,
+getCurrentUser 
+}
