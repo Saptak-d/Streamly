@@ -313,6 +313,45 @@ const updateAccountDetails = asyncHandler(async(req,res)=>{
 
 })
 
+const updateAvatar = asyncHandler(async(req,res)=>{
+   
+   const avatarLocalPath = req.files?.path;
+
+   if(!avatarLocalPath){
+      throw new ApiError(400,"The new Avatar is Required ")
+   }
+   
+      const avatar = await uploadOnCloudinary(avatarLocalPath);
+      if(!avatar.url){
+          throw new ApiError(400,"Error while uploading Avatar ")
+      }
+
+      const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+          $set: {
+            avatar : avatar.url
+          }
+        },
+
+        {
+          new : true
+        }
+
+      ).select("-password")
+
+      if(!user){
+        throw new ApiError(401,"User is not Found")
+      }
+
+      return res
+      .status(200)
+      .json(
+        new ApiResponse(200,user , "Avater is changed Successfully")
+      )
+})
+
+
 
 
 
@@ -324,5 +363,7 @@ loginUser,
 logOutUser ,
 refreshAccessToken,
 changeCurrentPassword,
-getCurrentUser 
+getCurrentUser,
+updateAccountDetails,
+updateAvatar
 }
