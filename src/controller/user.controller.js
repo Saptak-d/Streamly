@@ -80,15 +80,7 @@ const registerUser = asyncHandler(async(req,res)=>{
 
        return res.status(201).json(
         new ApiResponse(201,createdUser , "User is Created Successfully")
-       )
-
-    
-
-
-
-
-
-   
+       )   
 })
 
 const loginUser  = asyncHandler(async(req,res)=>{
@@ -117,7 +109,7 @@ const loginUser  = asyncHandler(async(req,res)=>{
     const passwordCheck = await user.isPasswordCorrect(password)
 
     if(!passwordCheck){
-          throw new ApiError(404, "User does not exist ")
+          throw new ApiError(404, "User Enter wrong password ")
     }
     
     const{accessToken , refreshToken} = await generateAccessAndRefreshTokes(user._id);
@@ -151,10 +143,9 @@ const logOutUser = asyncHandler(async(req,res)=>{
    await User.findByIdAndUpdate(
       req.user._id,
       {
-        $set :{
-          refreshToken : undefined
+        $unset :{
+          refreshToken : 1
         },
-        
       },
       {
         // this one is used for to get the nw updated responce 
@@ -188,9 +179,8 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
    try {
     const decordeToken = jwt.verify(incommingRefreshToken ,process.env.REFRESH_TOKEN_SECRECT);
  
-   
- 
      const user = await User.findById(decordeToken._id).select("-password");
+
      
       if(!user){
        throw new ApiError(401,"Unauthorized request");
@@ -200,7 +190,13 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
          throw new ApiError(401,"Unauthorized request");
       }
  
-      const{accessToken , refreshToken} = generateAccessAndRefreshTokes(user._id)
+ 
+      const{accessToken , refreshToken} = await generateAccessAndRefreshTokes(user._id)
+
+      if(!accessToken  || !refreshToken){
+        console.log(refreshToken)
+        throw new ApiError(400,"Something went wrong while generating the tokens ")
+      }
  
       const options = {
        httpOnly : true ,
@@ -354,6 +350,7 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
 const updateUserCoverImage = asyncHandler(async(req,res)=>{
   
   const coverImageLocalPath = req.file?.path
+ 
 
   if(!coverImageLocalPath){
      throw new ApiError(401,"The coverImage is required ");
@@ -384,7 +381,6 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
 
   const {userName} = req.params;
 
-
    if(!userName?.trim()){
      throw new ApiError(400,"The user Name is required ");
    }
@@ -392,10 +388,11 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
    const channel  = await User.aggregate([
        {
           $match : {
-            userName : userName?.toLowerCase()
+            username : userName?.toLowerCase()
           }
 
        },
+
        {
         $lookup : {
           from : "subscriptions",
@@ -404,13 +401,13 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
            as : "subscribers"
         }
        },
+
        {
          $lookup : {
           from : "subscriptions",
           localField : "_id",
           foreignField : "subscriber",
           as : "subscribeTo"
-
          }
        },
 
@@ -424,7 +421,7 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
           },
           isSubscribed : {
             $cond:{
-               if : {$in: ["req.user?._id", "subscribers.subscriber"]},
+               if : {$in: [req.user?._id , "$subscribers.subscriber"]},
                then :true,
                else :false
             }
@@ -442,16 +439,16 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
             avatar : 1,
             coverImage :1 ,
             email :1,
-
-
         }
        }
 
    ])
+     console.log(channel[0])
 
    if(!channel?.length){
     throw new ApiError(500, "Internal Server Error Channel does not exist")
    }
+
     return res
     .status(200)
     .json(
