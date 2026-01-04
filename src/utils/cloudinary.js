@@ -33,4 +33,19 @@ const uploadOnCloudinary  = async(localFilePath)=>{
         console.log("Files is removed automatically") //remove the locally saved temporary file as the as the upload operation got failed 
     }
 }
+
+const deleteOnCloudinary = async(localFilePath)=>{
+    try {
+        if(!localFilePath){
+            return null
+        }
+         const fixedPath = localFilePath.replace(/\\/g, "/");
+         
+
+        
+    } catch (error) {
+        
+    }
+}
+
 export {uploadOnCloudinary};

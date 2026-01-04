@@ -19,6 +19,7 @@ const generateAccessAndRefreshTokes =  async(userID)=>{
   }
 }
 
+
 const registerUser = asyncHandler(async(req,res)=>{
 // get user details from frontend
 // validation — not empty
@@ -65,8 +66,14 @@ const registerUser = asyncHandler(async(req,res)=>{
 
        const user =  await User.create({
         fullName,
-        avatar: avatar.url,
-        coverImage : coverImage?.url || " ",
+        avatar: {
+            url : avatar.secure_url,
+            public_id : avatar.public_id
+        } ,
+        coverImage : {
+            url : coverImage?.secure_url  || " ",
+            public_id : coverImage?.public_id  || " ",
+        },
         email,
         password,
         username : username.toLowerCase()
@@ -316,6 +323,9 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
    if(!avatarLocalPath){
       throw new ApiError(400,"The new Avatar is Required ")
    }
+    
+    
+
    
       const avatar = await uploadOnCloudinary(avatarLocalPath);
       if(!avatar.url){
