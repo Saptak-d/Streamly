@@ -357,24 +357,34 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
   
   const coverImageLocalPath = req.file?.path
  
-
   if(!coverImageLocalPath){
      throw new ApiError(401,"The coverImage is required ");
   } 
-   
+
+   const user = await User.findById(req.user?._id)
+     .select("-refreshToken -password")
+
+    if(!user){
+      throw new ApiError(404,"user not found")
+    }
+    const oldPublic_id = user.coverImage?.public_id
+
     const coverImage =  await uploadOnCloudinary(coverImageLocalPath)
 
-    if(!coverImage.url){
-      throw new ApiError(400,"Error while uploading coverImage ")
-    }
+    if(!coverImage.secure_url && !coverImage.public_id){
+          throw new ApiError(400,"Error while uploading coverImage  ")
+      }
 
-    const user  = await User.findByIdAndUpdate(
-       req.user?._id,
-       {
-        coverImage : coverImage.url
-       },
-       {new : true},
-    ).select("-password")
+     user.coverImage = {
+         url : coverImage.secure_url,
+          public_id : coverImage.public_id,
+     }
+
+     await user.save({validateBeforeSave : false})
+
+     if(oldPublic_id){
+           await deleteOnCloudinary(oldPublic_id)
+       }
     
     return res
     .status(200)
