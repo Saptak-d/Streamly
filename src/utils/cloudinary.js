@@ -1,6 +1,7 @@
 import { v2  as cloudinary} from "cloudinary";
 
 import fs from "fs";
+import { ApiError } from "./ApiErrors.js"
 
 
 
@@ -34,18 +35,22 @@ const uploadOnCloudinary  = async(localFilePath)=>{
     }
 }
 
-const deleteOnCloudinary = async(localFilePath)=>{
+const deleteOnCloudinary = async(public_id)=>{
     try {
-        if(!localFilePath){
+        if(!public_id){
             return null
         }
-         const fixedPath = localFilePath.replace(/\\/g, "/");
-         
+        const response = await cloudinary.uploader.destroy(public_id);
 
+        if(response.result !== "ok" && response.result !== "not found"){
+            throw new ApiError(500,"Some Internal server error ")
+        }
+
+        return response
         
     } catch (error) {
-        
+              console.log("Cloudinary error:", error);
     }
 }
 
-export {uploadOnCloudinary};
+export {uploadOnCloudinary, deleteOnCloudinary};

@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiErrors.js"
 import { User } from "../models/user.models.js";
-import {uploadOnCloudinary} from "../utils/cloudinary.js"
+import {uploadOnCloudinary,deleteOnCloudinary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose";
@@ -47,8 +47,6 @@ const registerUser = asyncHandler(async(req,res)=>{
     }
      const avatarLocalPath =  req.files?.avatar?.[0]?.path
      const coverImageLocalPath  = req.files?.coverImage?.[0]?.path
-
-     console.log("the avtarlink-",avatarLocalPath)
 
      if(!avatarLocalPath ){
         throw new ApiError(400, "Avatar file is Required")
@@ -323,33 +321,31 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
    if(!avatarLocalPath){
       throw new ApiError(400,"The new Avatar is Required ")
    }
-    
-    
 
-   
+      const user   = await User.findById(req.user._id)
+        .select("-refreshToken -password")
+        
+      if(!user){
+        throw new ApiError(404,"User is not found")
+      }
+      const oldPublic_id = user.avatar?.public_id
+
       const avatar = await uploadOnCloudinary(avatarLocalPath);
-      if(!avatar.url){
+
+      if(!avatar.secure_url && !avatar.public_id){
           throw new ApiError(400,"Error while uploading Avatar ")
       }
 
-      const user = await User.findByIdAndUpdate(
-        req.user?._id,
-        {
-          $set: {
-            avatar : avatar.url
-          }
-        },
-
-        {
-          new : true
-        }
-
-      ).select("-password")
-
-      if(!user){
-        throw new ApiError(401,"User is not Found")
+      user.avatar = {
+          url : avatar.secure_url,
+          public_id : avatar.public_id,
       }
+     await  user.save({validateBeforeSave : false})
 
+       if(oldPublic_id){
+           await deleteOnCloudinary(oldPublic_id)
+       }
+       
       return res
       .status(200)
       .json(
