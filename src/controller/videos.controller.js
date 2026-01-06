@@ -28,7 +28,7 @@ const  publishAVideo  = asyncHandler(async(req, res)=>{
 
        const existVideo = await Video.find({owner : user._id, title })
 
-       if(existVideo){
+       if( existVideo){
         throw new ApiError(404,"The User already has a same video title exist")
        }
 
