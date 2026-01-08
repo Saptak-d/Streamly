@@ -33,7 +33,7 @@ const registerUser = asyncHandler(async(req,res)=>{
   const {username , email, fullName , password} =  req.body;
   
     if( 
-        [username , email , fullName , password].some((field) => field?.trim() === "")  
+        [username , email , fullName , password].some((field) => typeof field !== "string" || field?.trim() === "")  
     ){
          throw new ApiError(400 , "All Fields are  Rrequired ")
     }

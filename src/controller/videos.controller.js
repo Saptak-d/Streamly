@@ -1,6 +1,6 @@
 import { ApiError } from "../utils/ApiErrors.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { deleteOnCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Video } from "../models/video.models.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
@@ -96,7 +96,56 @@ const getVideoById  = asyncHandler(async(req,res)=>{
        )
 })
 
+const updateVideo  = asyncHandler(async(req,res)=>{
+
+    const {videoId} = req.params
+     if(!videoId){
+      throw new ApiError(404,"videoId is required")
+     }
+        
+     const allowedfields = ["title", "description", "thumbnail"] //This is a whitelist. Only these fields are allowed to be updated.
+
+     const updateFields   = Object.fromEntries(
+        Object.entries(req.body).filter(
+          ([key,value])=> allowedfields.includes(key) &&
+         typeof value === "string" &&
+        value.trim() != ""
+        )
+     )
+      if(updateFields.thumbnail){
+        const updatedLink  = await uploadOnCloudinary(updateFields.thumbnail)
+         await deleteOnCloudinary()
+        updateFields.thumbnail = updatedLink;
+
+      }
+
+        if (Object.keys(updateFields).length === 0) {
+    throw new ApiError(400, "At least one valid field is required to update");
+  }
+
+      const video = await Video.findByIdAndUpdate(
+         videoId ,
+         {
+          $set : updateFields
+         },
+         {
+           new : true
+         }
+          
+         
+      )
+
+      return res 
+      .status(200)
+      .json(
+        new ApiResponse(200,video,"The fields changed successfully")
+      )
+    
+
+})
+
 export  {
     publishAVideo,
-    getVideoById
+    getVideoById,
+    updateVideo
 }
