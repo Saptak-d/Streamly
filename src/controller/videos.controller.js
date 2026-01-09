@@ -98,12 +98,25 @@ const getVideoById  = asyncHandler(async(req,res)=>{
 
 const updateVideo  = asyncHandler(async(req,res)=>{
 
-    const {videoId} = req.params
+    const {videoId} = req.params;  
+
      if(!videoId){
       throw new ApiError(404,"videoId is required")
      }
-        
-     const allowedfields = ["title", "description", "thumbnail"] //This is a whitelist. Only these fields are allowed to be updated.
+
+       const oldvideo  = await Video.findById(videoId)
+       
+    if (!oldvideo) {
+     throw new ApiError(404, "Video not found");
+   }
+    
+    //  Ownership check
+     
+     if(oldvideo.owner.toString() !== req.user._id.toString()){
+      throw new ApiError(403, "You are not allowed to update this video");
+     }
+
+     const allowedfields = ["title","description"] //This is a whitelist. Only these fields are allowed to be updated.
 
      const updateFields   = Object.fromEntries(
         Object.entries(req.body).filter(
@@ -112,16 +125,24 @@ const updateVideo  = asyncHandler(async(req,res)=>{
         value.trim() != ""
         )
      )
-      if(updateFields.thumbnail){
-        const updatedLink  = await uploadOnCloudinary(updateFields.thumbnail)
-         await deleteOnCloudinary()
-        updateFields.thumbnail = updatedLink;
+ 
+      
+       const newthumbnail = req.file?.path;
+ 
+    if(newthumbnail){
+         const updatedLink  = await uploadOnCloudinary(newthumbnail)
+         if (oldvideo.thumbnail?.public_id) {
+                 await deleteOnCloudinary(oldvideo.thumbnail.public_id);
+            }
+          updateFields.thumbnail = {
+               url : updatedLink.secure_url,
+               public_id : updatedLink.public_id,
+          }
+       }
 
-      }
-
-        if (Object.keys(updateFields).length === 0) {
-    throw new ApiError(400, "At least one valid field is required to update");
-  }
+         if (Object.keys(updateFields).length === 0) {
+               throw new ApiError(400, "At least one field is required to update");
+         }
 
       const video = await Video.findByIdAndUpdate(
          videoId ,
@@ -131,8 +152,6 @@ const updateVideo  = asyncHandler(async(req,res)=>{
          {
            new : true
          }
-          
-         
       )
 
       return res 
@@ -140,8 +159,6 @@ const updateVideo  = asyncHandler(async(req,res)=>{
       .json(
         new ApiResponse(200,video,"The fields changed successfully")
       )
-    
-
 })
 
 export  {
