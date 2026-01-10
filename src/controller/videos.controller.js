@@ -202,9 +202,48 @@ const deleteVideo = asyncHandler(async(req,res)=>{
       )
 })
 
+const togglePublishStatus  = asyncHandler(async(req,res)=>{
+    const videoId = req.params
+
+      if(!videoId){
+         throw new ApiError(404,"the id is required")
+      }
+
+   const{isPublished} = req.body
+     
+     if(!isPublished){
+      throw new ApiError(404,"isPublished is required")
+     }
+     
+   const video = await  Video.findById(videoId)
+
+   if(!video){
+      throw new ApiError(404,"video is not found for this id")
+   }
+
+    if(video.owner.toString() !== req.user._id.toString()){
+      throw new ApiError(403, "You are not allowed to change the video setting  this video")
+    }
+
+    video.isPublished = isPublished
+       
+     const updatedVideo = await Video.save({validateBefore: true})
+
+      if(!updatedVideo){
+         throw new ApiError(501,"internal server Error while changing video setting")
+      }
+      return res
+      .status(200)
+      .json(
+         new ApiResponse(200,updatedVideo,"the video settting is changed successfully ")
+      )
+})
+
+
 export  {
     publishAVideo,
     getVideoById,
     updateVideo,
-    deleteVideo
+    deleteVideo,
+    togglePublishStatus
 }
