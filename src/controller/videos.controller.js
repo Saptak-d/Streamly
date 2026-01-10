@@ -162,7 +162,7 @@ const updateVideo  = asyncHandler(async(req,res)=>{
 })
 
 const deleteVideo = asyncHandler(async(req,res)=>{
-    const videoId = req.params
+    const {videoId} = req.params
 
     if(!videoId){
       throw new ApiError(404,"the video id is required")
@@ -170,14 +170,27 @@ const deleteVideo = asyncHandler(async(req,res)=>{
 
      const video = await Video.findById(videoId)
 
-     if(video.owner !== req.user._id){
-       throw new ApiError(404,"invalid user")
+      if (!video) {
+      throw new ApiError(404, "Video not found");
+       }
+
+
+     if(video.owner.toString() !== req.user._id.toString()){
+       throw new ApiError(403, "You are not allowed to delete this video")
      }
 
-         await deleteOnCloudinary(video.videoFile.public_id);
-         await deleteOnCloudinary(video.thumbnail.public_id);
+        console.log("video link of clud ---",video.videoFile?.public_id)
+
+        if (video.videoFile?.public_id) {
+    await deleteOnCloudinary(video.videoFile.public_id,"video");
+      }
+
+   if (video.thumbnail?.public_id) {
+     await deleteOnCloudinary(video.thumbnail.public_id);
+   }
 
         const deletdDocument  = await Video.findByIdAndDelete(videoId);
+
       if(!deletdDocument){
           throw new ApiError(404,"Error while Deleting the video ")
       }
@@ -185,7 +198,7 @@ const deleteVideo = asyncHandler(async(req,res)=>{
       return res
       .status(200)
       .json(
-         new ApiError(200,deletdDocument,"the video deleted successfully")
+         new ApiResponse(200,deletdDocument,"the video deleted successfully")
       )
 })
 
