@@ -161,8 +161,37 @@ const updateVideo  = asyncHandler(async(req,res)=>{
       )
 })
 
+const deleteVideo = asyncHandler(async(req,res)=>{
+    const videoId = req.params
+
+    if(!videoId){
+      throw new ApiError(404,"the video id is required")
+    }
+
+     const video = await Video.findById(videoId)
+
+     if(video.owner !== req.user._id){
+       throw new ApiError(404,"invalid user")
+     }
+
+         await deleteOnCloudinary(video.videoFile.public_id);
+         await deleteOnCloudinary(video.thumbnail.public_id);
+
+        const deletdDocument  = await Video.findByIdAndDelete(videoId);
+      if(!deletdDocument){
+          throw new ApiError(404,"Error while Deleting the video ")
+      }
+
+      return res
+      .status(200)
+      .json(
+         new ApiError(200,deletdDocument,"the video deleted successfully")
+      )
+})
+
 export  {
     publishAVideo,
     getVideoById,
-    updateVideo
+    updateVideo,
+    deleteVideo
 }
