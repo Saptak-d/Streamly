@@ -22,7 +22,7 @@ router.route("/uploadVideo").post(verifyJwt,
 router.route("/getVideoById/:videoId").get(verifyJwt,getVideoById)
 router.route("/updateVideo/:videoId").patch(verifyJwt,upload.single("thumbnail"),updateVideo)
 router.route("/deleteVideo/:videoId").delete(verifyJwt,deleteVideo)
-router.route("/update-PublishStatus").patch(verifyJwt,togglePublishStatus)
+router.route("/updatePublishStatus/:videoId").patch(verifyJwt,togglePublishStatus)
 
 
 

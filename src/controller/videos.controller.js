@@ -203,19 +203,21 @@ const deleteVideo = asyncHandler(async(req,res)=>{
 })
 
 const togglePublishStatus  = asyncHandler(async(req,res)=>{
-    const videoId = req.params
+    const {videoId} = req.params
 
       if(!videoId){
          throw new ApiError(404,"the id is required")
       }
+      console.log(videoId)
 
    const{isPublished} = req.body
      
-     if(!isPublished){
-      throw new ApiError(404,"isPublished is required")
-     }
+     if (typeof isPublished !== "boolean") {
+  throw new ApiError(400, "isPublished must be a boolean");
+}
+
      
-   const video = await  Video.findById(videoId)
+   const video = await Video.findById(videoId)
 
    if(!video){
       throw new ApiError(404,"video is not found for this id")
@@ -227,7 +229,7 @@ const togglePublishStatus  = asyncHandler(async(req,res)=>{
 
     video.isPublished = isPublished
        
-     const updatedVideo = await Video.save({validateBefore: true})
+     const updatedVideo = await video.save({validateBefore: true})
 
       if(!updatedVideo){
          throw new ApiError(501,"internal server Error while changing video setting")
@@ -238,6 +240,44 @@ const togglePublishStatus  = asyncHandler(async(req,res)=>{
          new ApiResponse(200,updatedVideo,"the video settting is changed successfully ")
       )
 })
+
+const getAllVideos = asyncHandler(async (req, res) => {
+  const {
+    page = 1,
+    limit = 3,
+    query,
+    userId
+  } = req.query;
+
+  // pagination
+  const pageNumber = Math.max(Number(page), 1);
+  const limitNumber = Math.min(Number(limit), 3);
+  const skip = (pageNumber - 1) * limitNumber;
+
+  // filter
+  const filter = {};
+
+  if (userId) {
+    filter.owner = userId;
+  }
+
+  if (query) {
+    filter.title = { $regex: query, $options: "i" };
+  }
+
+  // fetch videos
+  const videos = await Video.find(filter)
+  .populate("owner", "username avatar coverImage")
+  .sort({ createdAt: -1 })
+  .skip(skip)
+  .limit(limitNumber);
+
+return res.status(200).json(
+  new ApiResponse(200, videos, "Videos fetched successfully")
+);
+
+});
+
 
 
 export  {
