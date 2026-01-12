@@ -264,6 +264,10 @@ const getAllVideos = asyncHandler(async (req, res) => {
   if (query) {
     filter.title = { $regex: query, $options: "i" };
   }
+   
+   filter.isPublished = true
+
+
 
   // fetch videos
   const videos = await Video.find(filter)
@@ -285,5 +289,6 @@ export  {
     getVideoById,
     updateVideo,
     deleteVideo,
-    togglePublishStatus
+    togglePublishStatus,
+    getAllVideos
 }
