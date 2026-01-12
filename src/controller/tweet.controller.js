@@ -24,3 +24,8 @@ const createTweet = asyncHandler(async(req , res)=>{
       )
 }
 )
+
+export {
+    createTweet,
+    
+}

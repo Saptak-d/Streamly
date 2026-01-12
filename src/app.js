@@ -22,6 +22,12 @@ app.use("/api/v1/users",userRoutes)
 import videoRoutes from "./routes/video.routes.js"
 app.use("/api/v1/video",videoRoutes)
 
+import tweetRoutes from "./routes/tweet.routes.js"
+
+app.use("/api/v1/tweet",tweetRoutes)
+
+
+
 
 
 
