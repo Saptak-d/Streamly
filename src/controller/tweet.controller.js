@@ -15,8 +15,12 @@ const createTweet = asyncHandler(async(req , res)=>{
      }
       const tweet  = await Tweet.create({
         content,
-        user
+        owner : user
       })
+
+      if(!tweet){
+         throw new ApiError(500,"Error while uploading the tweet")
+      }
       return res
       .status(200)
       .json(
@@ -24,8 +28,31 @@ const createTweet = asyncHandler(async(req , res)=>{
       )
 }
 )
+const getUserTweets = asyncHandler(async(req,res)=>{
+
+     const {userId}  = req.params
+
+      if(!userId){
+        throw new ApiError(404, "The user id is required")
+      }
+
+      const tweets = await Tweet.find({owner:userId})
+
+      if(!tweets){
+         throw  new ApiError(404,"cant find any tweet")
+      }
+
+      return res
+      .status(200)
+      .json(
+        new ApiResponse(200,tweets,"all Tweets successfully returned")
+      )
+
+})
+
 
 export {
     createTweet,
-    
+    getUserTweets
+
 }
