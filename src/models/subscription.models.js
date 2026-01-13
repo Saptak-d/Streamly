@@ -17,4 +17,4 @@ import mongoose,{Schema} from "mongoose";
 
  export const subscription = mongoose.model("subscription",subscriptionSchema )
 
- 
+  
