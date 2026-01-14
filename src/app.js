@@ -23,8 +23,10 @@ import videoRoutes from "./routes/video.routes.js"
 app.use("/api/v1/video",videoRoutes)
 
 import tweetRoutes from "./routes/tweet.routes.js"
-
 app.use("/api/v1/tweet",tweetRoutes)
+
+import subscriptionRoutes from "./routes/subscription.routes.js"
+app.use("/api/v1/subscription",subscriptionRoutes)
 
 
 

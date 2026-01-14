@@ -1,12 +1,9 @@
 import { ApiError } from "../utils/ApiErrors.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { User } from "../models/user.models.js";
 import { subscription } from "../models/subscription.models.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
-import { LIMIT } from "styled-components/dist/utils/createWarnTooManyClasses.js";
-import { count } from "console";
-import { channel } from "diagnostics_channel";
+
 
 const toggleSubscription  = asyncHandler(async (req,res)=>{
     const {channelId} = req.params
@@ -117,8 +114,9 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 // controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
     const { subscriberId } = req.params
-     const page  =  req.query.page || 1 
-     const limit = req.query.limit || 20
+     const page  =  Number(req.query.page)  || 1 
+     const limit = Number(req.query.limit)  || 20
+     const skip = (page - 1) * limit
 
      if(!subscriberId){
         throw new ApiError(400, "The subscriber Id is required ")
@@ -146,7 +144,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
                             _id : 0,
                            "channel._id" : 1,
                            "channel.username" : 1,
-                           "channel,avatar" : 1
+                           "channel.avatar" : 1
                         }
                     },
                 ],
@@ -177,5 +175,5 @@ export {
     toggleSubscription,
     getUserChannelSubscribers,
     getSubscribedChannels,
-    
+
 }
