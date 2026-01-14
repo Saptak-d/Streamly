@@ -6,6 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
 import { LIMIT } from "styled-components/dist/utils/createWarnTooManyClasses.js";
 import { count } from "console";
+import { channel } from "diagnostics_channel";
 
 const toggleSubscription  = asyncHandler(async (req,res)=>{
     const {channelId} = req.params
@@ -87,7 +88,6 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
                             "subscriber._id": 1,
                             "subscriber.username" : 1,
                             "subscriber.avatar" : 1,
-
                         }
                     }
                 ],
@@ -105,7 +105,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
         new ApiResponse(
             200,
             {
-                count : totslCount,
+                count : totslCount ,
                 subscribers : result.data || [],
                 page,
                 limit,
@@ -117,10 +117,65 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 // controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
     const { subscriberId } = req.params
+     const page  =  req.query.page || 1 
+     const limit = req.query.limit || 20
+
+     if(!subscriberId){
+        throw new ApiError(400, "The subscriber Id is required ")
+     }
+
+     const channels = await subscription.aggregate([
+        {$match : {subscriber : new mongoose.Types.ObjectId(subscriberId)}},
+        {$sort: {createdAt : -1}},
+        {
+            $facet : {
+                data :[
+                    {$skip :skip},
+                    {$limit : limit},
+                    {
+                        $lookup : {
+                            from : "users",
+                            localField : "channel",
+                            foreignField : "_id",
+                            as : "channel"
+                     }
+                    },
+                    { $unwind : "$channel" },
+                    {
+                        $project:{
+                            _id : 0,
+                           "channel._id" : 1,
+                           "channel.username" : 1,
+                           "channel,avatar" : 1
+                        }
+                    },
+                ],
+                totalChannels :[{$count : "count"}]
+          }
+        }
+     ])
+
+     const result = channels[0] || {}
+     const totalChannelsCount  = result.totalChannels?.[0]?.count || 0
+
+     return res
+      .status(200)
+      .json(
+         new ApiResponse(
+            200,
+            {
+                count : totalChannelsCount,
+                channels : result.data || [],
+                page ,
+                limit,
+            }
+         )
+      )
 })
 
 export {
     toggleSubscription,
     getUserChannelSubscribers,
-    getSubscribedChannels
+    getSubscribedChannels,
+    
 }
