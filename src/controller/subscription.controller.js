@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 
 
 const toggleSubscription  = asyncHandler(async (req,res)=>{
-    const {channelId} = req.params
+    const {channelId} = req.params //channel id whome channel gonna subscribe 
     const userId = req.user?._id
 
     if(!userId || !channelId){
@@ -48,10 +48,9 @@ const toggleSubscription  = asyncHandler(async (req,res)=>{
 
 })
 
-
 // controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
-    const {channelId} = req.params
+    const {channelId} = req.params 
      const page = Number(req.query.page) || 1
      const limit  = Number(req.query.limit) || 20 
      const skip = (page - 1) * limit
@@ -93,6 +92,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
         }
 
     ])
+    
        const result = subscribers[0] || {};
        const totslCount  = result.totalSubscribers?.[0]?.count || 0
      
