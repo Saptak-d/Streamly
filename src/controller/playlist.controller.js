@@ -16,9 +16,10 @@ const createPlaylist  = asyncHandler(async(req ,res)=>{
         throw new ApiError(400,"the user is required")
     }
 
-    const alreadyExist = await Playlist.find({owner : userId , name})
+    const alreadyExist = await Playlist.find({owner : userId , name : name})
+    console.log("exist playlist :---",alreadyExist)
      
-    if(alreadyExist){
+    if(alreadyExist.length == 0){
         throw new ApiError(404,"the playlist of this name is already exist")
     }
     const newPlayList = await Playlist.create({
@@ -143,3 +144,11 @@ const getUserPlaylists = asyncHandler(async(req,res)=>{
     )
   );
 })
+
+export {
+    createPlaylist,
+    addVideosToPlaylist,
+    getUserPlaylists
+
+
+}

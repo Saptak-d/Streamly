@@ -28,6 +28,9 @@ app.use("/api/v1/tweet",tweetRoutes)
 import subscriptionRoutes from "./routes/subscription.routes.js"
 app.use("/api/v1/subscription",subscriptionRoutes)
 
+import playlistRoutes from "./routes/playlist.routes.js"
+app.use("/api/v1/playlist",playlistRoutes)
+
 
 
 
