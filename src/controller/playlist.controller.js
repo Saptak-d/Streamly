@@ -3,6 +3,7 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 import {ApiError} from "../utils/ApiErrors.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import mongoose from "mongoose";
+import { Video } from "../models/video.models.js";
 
 const createPlaylist  = asyncHandler(async(req ,res)=>{
     const {name , description } = req.body
@@ -31,6 +32,56 @@ const createPlaylist  = asyncHandler(async(req ,res)=>{
      .json(
         new ApiResponse(200,newPlayList,"the new playlist is created successfully")
      )
+})
+
+const addVideosToPlaylist = asyncHandler(async(req,res)=>{
+    const {videoId ,playlistId} = req.body
+    const userId = req.user?._id
+    
+    if(!userId){
+        throw new ApiError(400," Unauthorized the user id is required")
+    }
+
+    if(!videoId || !playlistId){
+        throw new ApiError(400,'the Video iD and PlayList ID are required')
+    }
+
+     const video = await Video.findById(videoId)
+
+     if(!video){
+        throw new ApiError(400,"there is no video exist for this ID")
+     }
+
+    const playlist = await Playlist.findById(playlistId)
+
+     if(!playlist){
+          throw new ApiError(400,"there is no playlist exist for this ID")
+     }
+
+     if(!playlist.owner.equals(userId)){
+        throw new ApiError(400,"You are not allowed to modify this playlist")
+     }
+
+     const updatedPlaylist = await Playlist.findByIdAndUpdate(
+        playlist._id,
+        {$addToSet : {videos :videoId}},
+        {new : true}
+     )
+
+     if(!updatedPlaylist){
+        throw new ApiError(404,"The video is already added to the playlist")
+     }
+
+     return res
+     .status(200).json(
+    new ApiResponse(
+      200,
+      updatedPlaylist,
+      "Video added to playlist successfully"
+    )
+   ) 
+
+
 })
 
 const getUserPlaylists = asyncHandler(async(req,res)=>{
