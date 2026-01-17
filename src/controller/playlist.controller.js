@@ -173,6 +173,7 @@ export {
     createPlaylist,
     addVideosToPlaylist,
     getUserPlaylists,
+    getPlaylistById,
 
 
 }
