@@ -126,12 +126,13 @@ const getUserPlaylists = asyncHandler(async(req,res)=>{
 
 const getPlaylistById = asyncHandler(async(req,res)=>{
     const {playlistId} = req.params
+   
     if(!playlistId){
         throw new ApiError(400,"the playlist ID is required")
     }
 
     const playlist = await Playlist.aggregate([
-        {$match : {_id : playlistId}},
+        {$match : {_id : new mongoose.Types.ObjectId(playlistId)}},
         {
             $lookup :{
                 from : "videos",
@@ -156,6 +157,7 @@ const getPlaylistById = asyncHandler(async(req,res)=>{
             }
         }
     ])
+     
 
     if(playlist.length == 0 ){
         throw new ApiError(404,"there is no playlist found in this Id")
@@ -168,12 +170,56 @@ const getPlaylistById = asyncHandler(async(req,res)=>{
     )
 })
 
+const removeVideoFromPlaylist = asyncHandler(async(req,res)=>{
+    const {playlistId, videoId} = req.params
+     const userID = req.user?._id
+     
+     if(!userID){
+        throw new ApiError(400,"The user ID is required")}
+
+    if(!playlistId || !videoId){
+        throw new ApiError(400,"playlistId and  videoId")
+    }
+    const playlist = await Playlist.findById(playlistId)
+    const video = await  Video.findById(videoId)
+
+    if(!playlist){
+        throw new ApiError(404, "There is no playlsit exist for this ID")
+    }
+     if(!video){
+        throw new ApiError(404, "There is no playlsit exist for this ID")
+    }
+    if(!playlist.owner.equals(userID)){
+        throw new ApiError(400,"the user is not the owner of this playlist")
+    }
+    
+     if(!playlist.videos.include(videoId)){
+        throw new ApiError(404,"thire is no video in the playlis belongs to the ID")
+     }
+
+    const updatedPlaylist = await Playlist.updateOne(
+        {_id: playlist},
+        {$pull: {video : videoId}}
+    )
+
+    if(updatedPlaylist.acknowledged==false){
+        throw new ApiError(500,"internal server Error while ")
+    }
+
+    return res
+     .status(200)
+     .json(
+        new ApiResponse(200,updatedPlaylist,"the playlist is successfully changed")
+     )
+})
+
 
 export {
     createPlaylist,
     addVideosToPlaylist,
     getUserPlaylists,
     getPlaylistById,
+    removeVideoFromPlaylist,
 
 
 }

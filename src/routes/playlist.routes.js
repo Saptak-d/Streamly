@@ -7,6 +7,6 @@ const router  = Router()
 router.route("/createPlaylist").post(verifyJwt,createPlaylist);
 router.route("/addVideosToPlaylist/:playlistId/:videoId").post(verifyJwt,addVideosToPlaylist)
 router.route("/getUserPlaylists/:userId").get(verifyJwt,getUserPlaylists)
-router.route("/getPlaylistById/:playlistId").post(verifyJwt,getPlaylistById )
+router.route("/getPlaylistById/:playlistId").get(verifyJwt,getPlaylistById )
 
 export default router
