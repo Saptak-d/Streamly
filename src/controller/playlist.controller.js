@@ -19,7 +19,7 @@ const createPlaylist  = asyncHandler(async(req ,res)=>{
     const alreadyExist = await Playlist.find({owner : userId , name : name})
     console.log("exist playlist :---",alreadyExist)
      
-    if(alreadyExist.length == 0){
+    if(alreadyExist.length > 0){
         throw new ApiError(404,"the playlist of this name is already exist")
     }
     const newPlayList = await Playlist.create({
@@ -29,14 +29,14 @@ const createPlaylist  = asyncHandler(async(req ,res)=>{
     })
 
     return res
-     .starus(200)
+     .status(200)
      .json(
         new ApiResponse(200,newPlayList,"the new playlist is created successfully")
      )
 })
 
 const addVideosToPlaylist = asyncHandler(async(req,res)=>{
-    const {videoId ,playlistId} = req.body
+    const {videoId ,playlistId} = req.params
     const userId = req.user?._id
     
     if(!userId){
@@ -97,44 +97,23 @@ const getUserPlaylists = asyncHandler(async(req,res)=>{
                 from : "videos",
                 localField : "videos",
                 foreignField : "_id",
-                 as : "video",
-                 pipeline : [
-                    {
-                        $lookup :{
-                            from : "users",
-                            localField : "owner",
-                            foreignField : "_id",
-                             as : "owner"
-                        },
-                    },
-                     {$unwind : "$owner"},
-                    {
-                      $project: {
-                            _id: 1,
-                             title: 1,
-                            description: 1,
-                            videoFile: 1,
-                            thumbnail: 1,
-                            owner: {
-                             _id: "$owner._id",
-                             username: "$owner.username",
-                             fullName: "$owner.fullName",
-                             avatar: "$owner.avatar",
-                          },
-                      }
-                    }
-                 ]
+                 as : "video", 
             }
         },
-        {
-            $project :{
-                   _id: 1,
-                   name: 1,
-                   description: 1,
-                   videos: 1,
-                   createdAt: 1,
-            }
-        }
+           { $project: {
+                            _id: 1,
+                             name: 1,
+                            description: 1,
+                             video : {
+                                videoFile : 1,
+                                thumbnail : 1,
+                                title : 1,
+                                description: 1,
+                                duration :1
+                             } 
+                      }
+                    },
+        
     ])
    return res.status(200).json(
     new ApiResponse(
@@ -145,10 +124,55 @@ const getUserPlaylists = asyncHandler(async(req,res)=>{
   );
 })
 
+const getPlaylistById = asyncHandler(async(req,res)=>{
+    const {playlistId} = req.params
+    if(!playlistId){
+        throw new ApiError(400,"the playlist ID is required")
+    }
+
+    const playlist = await Playlist.aggregate([
+        {$match : {_id : playlistId}},
+        {
+            $lookup :{
+                from : "videos",
+                localField : "videos",
+                foreignField : "_id",
+                 as : "video"
+            },
+
+        },
+        {
+            $project:{
+                _id : 1,
+                name : 1,
+                description : 1,
+                video : {
+                      videoFile : 1,
+                      thumbnail : 1,
+                      title : 1,
+                      description: 1,
+                      duration :1
+                }
+            }
+        }
+    ])
+
+    if(playlist.length == 0 ){
+        throw new ApiError(404,"there is no playlist found in this Id")
+    }
+
+   return res
+    .status(200)
+    .json(
+        new ApiResponse(200,playlist," playlists fetched successfully")
+    )
+})
+
+
 export {
     createPlaylist,
     addVideosToPlaylist,
-    getUserPlaylists
+    getUserPlaylists,
 
 
 }

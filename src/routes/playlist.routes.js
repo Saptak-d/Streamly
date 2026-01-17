@@ -5,7 +5,7 @@ import {createPlaylist,addVideosToPlaylist,getUserPlaylists} from "../controller
 const router  = Router()
 
 router.route("/createPlaylist").post(verifyJwt,createPlaylist);
-router.route("/addVideosToPlaylist").post(verifyJwt,addVideosToPlaylist)
+router.route("/addVideosToPlaylist/:playlistId/:videoId").post(verifyJwt,addVideosToPlaylist)
 router.route("/getUserPlaylists/:userId").get(verifyJwt,getUserPlaylists)
 
 export default router
