@@ -9,12 +9,10 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 const  publishAVideo  = asyncHandler(async(req, res)=>{
 
     const user  = req.user; 
-
      if(!user){
         throw new ApiError(404,"invalid request user not found")
      }
-     console.log("FILES:", req.files);
-
+     
       
      const videoLocalPath = req.files?.videoFile[0]?.path
     const thumbnailLocalPath = req.files?.thumbnail[0]?.path

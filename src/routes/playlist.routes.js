@@ -8,6 +8,6 @@ router.route("/createPlaylist").post(verifyJwt,createPlaylist);
 router.route("/addVideosToPlaylist/:playlistId/:videoId").post(verifyJwt,addVideosToPlaylist)
 router.route("/getUserPlaylists/:userId").get(verifyJwt,getUserPlaylists)
 router.route("/getPlaylistById/:playlistId").get(verifyJwt,getPlaylistById)
-router.route("/updatedPlaylist/:playlistId/:videoId").patch(verifyJwt,removeVideoFromPlaylist)
+router.route("/removeVideoFromPlaylist/:playlistId/:videoId").patch(verifyJwt,removeVideoFromPlaylist)
 
 export default router

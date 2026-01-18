@@ -63,26 +63,23 @@ const addVideosToPlaylist = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"You are not allowed to modify this playlist")
      }
 
-     const updatedPlaylist = await Playlist.findByIdAndUpdate(
-        playlist._id,
-        {$addToSet : {videos :videoId}},
-        {new : true}
-     )
-
-     if(!updatedPlaylist){
-        throw new ApiError(404,"The video is already added to the playlist")
+     
+        if (playlist.videos.includes(videoId)) {
+        throw new ApiError(409, "Video already exists in playlist");
      }
 
+       playlist.videos.push(videoId);
+       const result = await playlist.save();
+
      return res
-     .status(200).json(
-    new ApiResponse(
+     .status(200)
+     .json(
+      new ApiResponse(
       200,
-      updatedPlaylist,
+      result,
       "Video added to playlist successfully"
     )
    ) 
-
-
 })
 
 const getUserPlaylists = asyncHandler(async(req,res)=>{
@@ -175,7 +172,8 @@ const removeVideoFromPlaylist = asyncHandler(async(req,res)=>{
      const userID = req.user?._id
      
      if(!userID){
-        throw new ApiError(400,"The user ID is required")}
+        throw new ApiError(400,"The user ID is required")
+    }
 
     if(!playlistId || !videoId){
         throw new ApiError(400,"playlistId and  videoId")
@@ -193,9 +191,9 @@ const removeVideoFromPlaylist = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"the user is not the owner of this playlist")
     }
     
-     if(!playlist.videos.include(videoId)){
-        throw new ApiError(404,"thire is no video in the playlis belongs to the ID")
-     }
+     if (!playlist.videos.some(id => id.equals(videoId))) {
+      throw new ApiError(404, "Video not found in playlist")
+    }
 
     const updatedPlaylist = await Playlist.updateOne(
         {_id: playlist},
