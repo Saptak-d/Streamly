@@ -243,6 +243,70 @@ const deletePlaylist = asyncHandler(async(req,res)=>{
         )
 })
 
+const updatePlaylist  = asyncHandler(async(req,res)=>{
+    const {playlistId}  = req.params
+    const userID = req.user?._id
+    if(!userID){
+        throw new ApiError(401, "User not authenticated")
+    }
+    if(!playlistId){
+        throw new ApiError(400,"the playlistId is required")
+    }
+
+    const {name , description} = req.body
+
+    if(!name && !description){
+        throw new ApiError(400, "At least one field (name or description) is required")
+    }
+
+    const playlist = await Playlist.findById(playlistId)
+
+      if (!playlist) {
+        throw new ApiError(404, "Playlist not found");
+    }
+    const userExistingplaylists = await Playlist.find({owner : userID})
+
+   
+
+    if(!playlist.owner.equals(userID)){
+        throw new ApiError(404,"the user is not the owner of this playList ")
+    }
+
+    if(name){
+         const nameExists = await Playlist.exists({
+            owner : userID ,
+            name
+         });
+
+         if(nameExists){
+            throw new ApiError(409, "You already have a playlist with this name");
+         }
+    }
+
+    const updateFields = {};
+    if(name) updateFields.name = name;
+    if(description)updateFields.description = description;
+    
+    const  updatedPlaylist  = await Playlist.findByIdAndUpdate(
+        playlistId,
+        {$set:updateFields},
+        {new : true}
+    )
+
+
+     return res
+     .status(200)
+     .json(
+         new ApiResponse(
+        200,
+        updatedPlaylist,
+        "Playlist updated successfully"
+      )
+  );
+
+
+})
+
 
 export {
     createPlaylist,
