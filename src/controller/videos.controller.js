@@ -18,6 +18,7 @@ const  publishAVideo  = asyncHandler(async(req, res)=>{
     const thumbnailLocalPath = req.files?.thumbnail[0]?.path
     console.log("videoLocalPath-----",videoLocalPath)
     
+    
     if(!videoLocalPath || !thumbnailLocalPath){
         throw new ApiError(404,"video and thumbnail both are required ")
     }
