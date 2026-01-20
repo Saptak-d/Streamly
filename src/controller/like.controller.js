@@ -6,6 +6,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Comment } from "../models/comment.models.js";
 
+import { Tweet } from "../models/tweet.models.js";
+
 
 const toggleVideoLike  = asyncHandler(async(req , res)=>{
     const {videoId} = req.params
@@ -108,14 +110,52 @@ const toggleCommentLike = asyncHandler(async(req,res)=>{
      .json(
         new ApiResponse(200,newLike,"the like is successfully created")
      )
+});
 
+const toggleTweetLike = asyncHandler(async(req,res)=>{
+       const {tweetId} = req.params
+      if(!tweetId){
+        throw new ApiError(400,"the comment id is required")
+      }
+      const userId = req.user?._id
+      if(!userId){
+        throw new ApiError(400,"user is not authenticated")
+      }
+      const tweet = await Tweet.findById(tweetId)
+      if(!tweetId){
+        throw new ApiError(403,"No tweet is found for this id")
+    }
+    if(tweet.owner.equals(userId)){
+        throw new ApiError(403,"the user can't like own tweet")
+    }
+    const existUserOrNot = await Like.findOne({tweet : tweetId ,likedBy : userId})
+    
+     if(existUserOrNot){
+        const deletedLikeFromTweet = await Like.deleteOne({tweet : tweetId , likedBy : userId})
+        if(deletedLikeFromTweet.deletedCount == 0){
+            throw new ApiError(404,"the like is already deleted")
+        }
+        return res
+         .status(200)
+         .json(
+            new ApiResponse(200,deletedLikeFromTweet,"the like is successfully deleted for the Tweet")
+         )
+     }
 
+      const newlike = await Like.create({
+        tweet : tweetId,
+        likedBy : userId
+    });
 
-     
-
-
-
-
+    if(!newlike){
+        throw new ApiError(500,"Error while creating the like")
+    }
+    
+    return res
+     .status(200)
+     .json(
+        new ApiResponse(200,newlike,"the like is successfully created")
+     )
 
 })
 
@@ -123,5 +163,6 @@ const toggleCommentLike = asyncHandler(async(req,res)=>{
 
 export {
     toggleVideoLike,
+    toggleCommentLike
 
 }
