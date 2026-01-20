@@ -56,4 +56,9 @@ const toggleVideoLike  = asyncHandler(async(req , res)=>{
         new ApiResponse(200,newlike,"the like is successfully created")
      )
 
-})
+});
+
+export {
+    toggleVideoLike,
+    
+}
