@@ -5,3 +5,5 @@ import { toggleVideoLike } from "../controller/like.controller.js";
 const router  = Router()
 
 router.route("/toggleVideoLike/:videoId").get(verifyJwt,toggleVideoLike)
+
+export default router;

@@ -32,7 +32,8 @@ import playlistRoutes from "./routes/playlist.routes.js"
 app.use("/api/v1/playlist",playlistRoutes)
 
 
-
+import likeRoutes from "./routes/like.routes.js"
+app.use("/api/v1/like",likeRoutes)
 
 
 
