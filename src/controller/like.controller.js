@@ -126,7 +126,7 @@ const toggleTweetLike = asyncHandler(async(req,res)=>{
         throw new ApiError(403,"No tweet is found for this id")
     }
     if(tweet.owner.equals(userId)){
-        throw new ApiError(403,"the user can't like own tweet")
+        throw new ApiError(403,"the user can not  like own tweet")
     }
     const existUserOrNot = await Like.findOne({tweet : tweetId ,likedBy : userId})
     
@@ -163,6 +163,8 @@ const toggleTweetLike = asyncHandler(async(req,res)=>{
 
 export {
     toggleVideoLike,
-    toggleCommentLike
+    toggleCommentLike,
+    toggleTweetLike,
+
 
 }
