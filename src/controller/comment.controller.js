@@ -41,3 +41,7 @@ const addComment = asyncHandler(async(req,res)=>{
             new ApiResponse(200,"The Comment is Successfully created")
          )
 })
+
+export {
+    addComment,
+}
