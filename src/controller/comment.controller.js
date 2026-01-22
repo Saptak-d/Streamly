@@ -124,7 +124,7 @@ const deleteComment = asyncHandler(async(req,res)=>{
 
      const deleteComment  = await Comment.deleteOne({_id:commentId})
 
-     if(!deleteComment.acknowledged == false){
+     if(deleteComment.acknowledged == false){
         throw new ApiError(404,"error while deletiong the comment")
      }
 
