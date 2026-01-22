@@ -6,8 +6,21 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 const getVideoComments = asyncHandler(async(req , res)=>{
       const {videoId} = req.params
-    const {page = 1, limit = 10} = req.query
+      if(!videoId){
+        throw new ApiError(400,"the video is required")
+      }
+    const {page = 1, limit = 2} = req.query
     const skip = (page - 1) * limit ;
+
+     const comments = await Comment.find({video : videoId})
+     .skip(skip)
+     .limit(2)
+
+     return res
+      .status(200)
+      .json(
+        new ApiResponse(200,comments,"successfully fetched all comments of the  Video")
+      )
     
 })
 
@@ -41,7 +54,7 @@ const addComment = asyncHandler(async(req,res)=>{
         return res
          .status(200)
          .json(
-            new ApiResponse(200,"The Comment is Successfully created")
+            new ApiResponse(200,comment,"The Comment is Successfully created")
          )
 })
 
@@ -61,31 +74,28 @@ const updateComment  = asyncHandler(async(req,res)=>{
      if(!userId){
         throw new ApiError(400,"the User is need to authenticated")
      }
+    
+   const comment = await Comment.findById(commentId);
 
-     const result  = await Comment.updateOne(
-        {
-            _id : commentId ,
-             owner : userId,
-             content : {$ne : content}
+   if(!comment){
+    throw new ApiError(404,"NO comment is found")
+   }
 
-        },
-        {
-            $set: {content}
-        }
-     )
-
-     if(result.matchedCount === 0){
-        throw new ApiError( 403,"Comment not found or you are not the owner")
+     if(!comment.owner.equals(userId)){
+        throw new ApiError(403,"you are not allowed to updated this comment")
      }
 
-     if(result.modifiedCount === 0){
-        throw new ApiError( 400,"Same content provided, nothing to update")
+     if(comment.content.trim() === content.trim()){
+        throw new ApiError(400,"Same content provided, nothing to update")
      }
+
+      comment.content = content ;
+      await comment.save()
 
      return res
       .status(200)
       .json(
-        new ApiResponse(200,null,"the comment updated succesfully")
+        new ApiResponse(200,comment,"the comment updated successfully")
       )
 
 })
@@ -93,4 +103,6 @@ const updateComment  = asyncHandler(async(req,res)=>{
 
 export {
     addComment,
+    updateComment,
+    getVideoComments,
 }
