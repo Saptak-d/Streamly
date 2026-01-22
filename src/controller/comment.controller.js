@@ -100,9 +100,44 @@ const updateComment  = asyncHandler(async(req,res)=>{
 
 })
 
+const deleteComment = asyncHandler(async(req,res)=>{
+    const {commentId} = req.params 
+    
+     if(!commentId){
+        throw new ApiError(400,"The comment ID is required")
+     }
+     const userId = req.user._id
+
+      if(!userId){
+        throw new ApiError(400,"the User ID is required")
+      }
+
+     const comment = await Comment.findById(commentId)
+
+     if(!comment){
+        throw new ApiError(404,"No comment is found for this id")
+     }
+
+     if(!comment.owner.equals(userId)){
+        throw new ApiError(403,"the user is not the owner ")
+     }
+
+     const deleteComment  = await Comment.deleteOne({_id:commentId})
+
+     if(!deleteComment.acknowledged == false){
+        throw new ApiError(404,"error while deletiong the comment")
+     }
+
+     return res
+      .status(200)
+      .json(
+        new ApiResponse(200,deleteComment,"the comment is successfully deleted")
+      )
+})
 
 export {
     addComment,
     updateComment,
     getVideoComments,
+    deleteComment
 }
