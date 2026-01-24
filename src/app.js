@@ -37,6 +37,9 @@ app.use("/api/v1/like",likeRoutes)
 import commentRoutes from "./routes/comment.routes.js"
 app.use("/api/v1/Comment",commentRoutes)
 
+import  dashboardRoutes from "./routes/dashboard.routes.js"
+app.use("/api/v1/dashboard",dashboardRoutes)
+
 
 
 

@@ -74,3 +74,8 @@ const getChannelStats = asyncHandler(async(req,res)=>{
         new ApiResponse(200,allData[0],"data successfully fetched")
        )
 })
+
+export {
+    getChannelStats,
+    
+}
