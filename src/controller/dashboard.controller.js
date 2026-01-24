@@ -4,6 +4,7 @@ import {verifyJwt} from "../middleware/auth.middleware.js"
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.models.js";
 import mongoose  from "mongoose";
+import { Video } from "../models/video.models.js";
 
 
 const getChannelStats = asyncHandler(async(req,res)=>{
@@ -52,12 +53,14 @@ const getChannelStats = asyncHandler(async(req,res)=>{
          }},
          {
             $project :{
-                 _id : 1 ,
-                 "username" : 1 ,
-                 "email" : 1,
-                 "fullName" : 1,
-                 "avatar" : 1,
-                 "coverImage" : 1,
+                  videos: 0,
+                 subscribers: 0,
+                 likes: 0,
+                 password : 0,
+                 createdAt : 0,
+                 updatedAt : 0 ,
+                 refreshToken : 0
+
 
             }
          },
@@ -75,7 +78,17 @@ const getChannelStats = asyncHandler(async(req,res)=>{
        )
 })
 
+const getChannelVideos  = asyncHandler(async(req,res)=>{
+    const{videoId} = req.params
+    if(!videoId){
+        throw new ApiError(400,"the video id is required")
+    }
+
+    const allvideos = await Video.find({_id : videoId})
+
+})
+
 export {
     getChannelStats,
-    
+
 }
