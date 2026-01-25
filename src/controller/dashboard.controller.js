@@ -1,9 +1,7 @@
 import { ApiError } from "../utils/ApiErrors.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import {verifyJwt} from "../middleware/auth.middleware.js"
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.models.js";
-import mongoose  from "mongoose";
 import { Video } from "../models/video.models.js";
 
 
@@ -79,12 +77,41 @@ const getChannelStats = asyncHandler(async(req,res)=>{
 })
 
 const getChannelVideos  = asyncHandler(async(req,res)=>{
-    const{videoId} = req.params
-    if(!videoId){
+    const{channelId} = req.params
+    if(!channelId){
         throw new ApiError(400,"the video id is required")
     }
 
-    const allvideos = await Video.find({_id : videoId})
+    const allvideos = await User.aggregate([
+         {$match : {_id :channelId}},
+         {
+            $lookup :{
+                from : "videos",
+                localField : "_id",
+                foreignField : "owner",
+                 as :   "videos"
+            }
+         },
+         {
+            $project:{
+                username : 1,
+                email : 1,
+                fullName : 1 ,
+                avatar : 1,
+              coverImage : 1,
+              videos : {
+                videoFile : 1 ,
+                thumbnail  : 1,
+                title : 1,
+              }
+            }   
+         }
+
+    ])
+
+    return res
+     .status(200)
+     .json(new ApiResponse(200,allvideos[0],"ALl videos successfully fetched"))
 
 })
 
