@@ -77,7 +77,7 @@ const getChannelStats = asyncHandler(async(req,res)=>{
 })
 
 const getChannelVideos  = asyncHandler(async(req,res)=>{
-    const{channelId} = req.user?._id
+    const channelId = req.user?._id
     if(!channelId){
         throw new ApiError(400,"the video id is required")
     }
@@ -102,7 +102,7 @@ const getChannelVideos  = asyncHandler(async(req,res)=>{
               videos : {
                 videoFile : 1 ,
                 thumbnail  : 1,
-                title : 1,
+                title : 1,  
               }
             }   
          }
