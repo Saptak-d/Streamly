@@ -41,6 +41,11 @@ import  dashboardRoutes from "./routes/dashboard.routes.js"
 app.use("/api/v1/dashboard",dashboardRoutes)
 
 
+app.use((err, req, res, next) => { 
+    res.
+    status(err.statusCode || 500)
+    .json({ success: false, message: err.message }) })
+
 
 
 export {app} 
