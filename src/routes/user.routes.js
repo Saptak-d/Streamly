@@ -13,6 +13,9 @@ getWatchHistory
  } from "../controller/user.controller.js";
 import {upload} from "../middleware/multer.middleware.js"
 import { verifyJwt } from "../middleware/auth.middleware.js";
+import {userRegistrationValidatot} from "../validators/userControllerValidators.js"
+import {validate} from "../middleware/validator.middleware.js"
+
 
 const router = Router();
 router.route("/register").post(
@@ -27,6 +30,8 @@ router.route("/register").post(
         }
     
     ]),
+    userRegistrationValidatot(),
+    validate,
     registerUser)
 
 router.route("/login").post(loginUser)

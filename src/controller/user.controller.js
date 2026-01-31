@@ -32,12 +32,7 @@ const registerUser = asyncHandler(async(req,res)=>{
 // return res
   const {username , email, fullName , password} =  req.body;
   
-    if( 
-        [username , email , fullName , password].some((field) => typeof field !== "string" || field?.trim() === "")  
-    ){
-         throw new ApiError(400 , "All Fields are  Rrequired ")
-    }
-
+    
     const existUser  = await User.findOne({
         $or : [{username}, {email}]
     })
@@ -45,6 +40,8 @@ const registerUser = asyncHandler(async(req,res)=>{
     if(existUser){
          throw new ApiError(409 ,"The User is Already Exist")
     }
+
+     //  File validation
      const avatarLocalPath =  req.files?.avatar?.[0]?.path
      const coverImageLocalPath  = req.files?.coverImage?.[0]?.path
 
