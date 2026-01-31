@@ -28,8 +28,16 @@ const userRegistrationValidatot = () =>{
 
 const userLoginValidator= () =>{
     return [
-        body("email").isEmail().withMessage("Email is not Valid"),
-        body("password").notEmpty().withMessage("password cant be empty")
+        body("username")
+        .trim()
+        .notEmpty().withMessage("UserName is required"),
+        body("email")
+        .trim()
+        .notEmpty().withMessage("The email is required")
+        .isEmail().withMessage("The email is not an email"),
+        body("password")
+        .trim()
+        .notEmpty().withMessage("password is required")
     ]
 
 }

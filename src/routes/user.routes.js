@@ -13,7 +13,7 @@ getWatchHistory
  } from "../controller/user.controller.js";
 import {upload} from "../middleware/multer.middleware.js"
 import { verifyJwt } from "../middleware/auth.middleware.js";
-import {userRegistrationValidatot} from "../validators/userControllerValidators.js"
+import {userRegistrationValidatot,userLoginValidator} from "../validators/userControllerValidators.js"
 import {validate} from "../middleware/validator.middleware.js"
 
 
@@ -34,7 +34,7 @@ router.route("/register").post(
     validate,
     registerUser)
 
-router.route("/login").post(loginUser)
+router.route("/login").post(userLoginValidator,validate,loginUser)
 
 //secured Routes 
 router.route("/logout").post(verifyJwt,logOutUser)
