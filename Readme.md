@@ -259,8 +259,6 @@ Production-style REST API development
 
 🧩 Future Enhancements
 
-Add validation (Zod / Joi)
-
 Implement search
 
 Add Redis caching
