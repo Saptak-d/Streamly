@@ -229,11 +229,7 @@ const changeCurrentPassword = asyncHandler(async(req,res)=>{
    if(!id){
       throw new ApiError(401,"Invalid Access")
    }
-
-     if (!oldPassword || !newPassword) {
-    throw new ApiError(400, "Old password and new password are required");
-  }
-
+   
    const  existUser  = await User.findById(id);
 
      if(!existUser){

@@ -31,10 +31,12 @@ const userLoginValidator= () =>{
         body("username")
         .trim()
         .notEmpty().withMessage("UserName is required"),
+
         body("email")
         .trim()
         .notEmpty().withMessage("The email is required")
         .isEmail().withMessage("The email is not an email"),
+        
         body("password")
         .trim()
         .notEmpty().withMessage("password is required")
@@ -42,9 +44,22 @@ const userLoginValidator= () =>{
 
 }
 
+const changeCurrentPasswordValidatot = () =>{
+    return[
+    body("oldPassword")
+    .trim()
+    .notEmpty().withMessage("Old password Field is required"),
+    body("newPassword")
+    .trim()
+    .notEmpty().withMessage("The new Password Field is required")
+    ]
+}
+
+
 export {
     userRegistrationValidatot,
      userLoginValidator,
+     changeCurrentPasswordValidatot,
      
 
 
