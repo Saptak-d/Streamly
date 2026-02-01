@@ -1,4 +1,5 @@
 import {body} from "express-validator"
+import {param} from "express-validator"
 
 const userRegistrationValidatot = () =>{
     return [
@@ -44,22 +45,51 @@ const userLoginValidator= () =>{
 
 }
 
-const changeCurrentPasswordValidatot = () =>{
+const changeCurrentPasswordValidator = () =>{
     return[
     body("oldPassword")
     .trim()
     .notEmpty().withMessage("Old password Field is required"),
+    
     body("newPassword")
     .trim()
     .notEmpty().withMessage("The new Password Field is required")
     ]
 }
 
+const updateAccountDetailsValidator = ()=>{
+    return [
+        body("fullName")
+        .trim()
+        .notEmpty().withMessage("Full name field required")
+        .isLength({min : 3}).withMessage("Full name must be at least 3 characters"),
+
+        body("email")
+        .trim()
+        .notEmpty().withMessage("The email field is required")
+        .isEmail().withMessage("Invalid email formate ")
+
+    ]
+}
+
+const  getUserChannelProfileValidator = ()=>{
+     return [
+        param("userName")
+        .trim()
+        .notEmpty().withMessage("The userName field is required")
+        .isLength({min : 3}).withMessage("Full name must be at least 3 characters")
+     ]
+}
+
 
 export {
     userRegistrationValidatot,
      userLoginValidator,
-     changeCurrentPasswordValidatot,
+     changeCurrentPasswordValidator,
+     updateAccountDetailsValidator,
+     getUserChannelProfileValidator,
+
+
      
 
 

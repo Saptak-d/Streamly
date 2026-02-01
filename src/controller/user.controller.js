@@ -229,7 +229,7 @@ const changeCurrentPassword = asyncHandler(async(req,res)=>{
    if(!id){
       throw new ApiError(401,"Invalid Access")
    }
-   
+
    const  existUser  = await User.findById(id);
 
      if(!existUser){
@@ -279,10 +279,6 @@ const getCurrentUser = asyncHandler(async(req,res)=>{
 const updateAccountDetails = asyncHandler(async(req,res)=>{
 
   const  {fullName ,email} = req.body;
-
-   if(!fullName || ! email){
-      throw new ApiError(400, "All fields are required ")
-   }
 
     const user  = await User.findByIdAndUpdate(
       req.user?._id,
@@ -389,10 +385,6 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
 const getUserChannelProfile = asyncHandler(async(req,res)=>{
 
   const {userName} = req.params;
-
-   if(!userName?.trim()){
-     throw new ApiError(400,"The user Name is required ");
-   }
 
    const channel  = await User.aggregate([
        {
