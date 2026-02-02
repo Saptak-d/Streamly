@@ -1,4 +1,3 @@
-import { body } from "express-validator";
 import Mailgen from "mailgen";
 import nodemailer from "nodemailer"
 
@@ -38,9 +37,7 @@ const sendMail = async (options)=>{
  }
 
   try {
-    
     await transporter.sendMail(mail)
-
   } catch (error) {
      console.error("Emailed failed ")
   }
@@ -73,8 +70,8 @@ const  forgotPasswordMailGenCOntent = (username,passwordResetUrl)=>{
         action: {
             instructions: 'To get started with Streamly , please click here:',
             button: {
-                color: '#4f94f4ff', // Optional action button color
-                text: 'Reset Password',
+                color: '#45db65ff', // Optional action button color
+                text: 'Change  Password',
                 link: passwordResetUrl,
             }   
         },
