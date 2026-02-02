@@ -1,6 +1,5 @@
 import { body } from "express-validator";
-import { isBoolean } from "util";
-import { isBooleanObject } from "util/types";
+import {param} from "express-validator"
 
 const publishAVideovideoValidator = ()=>{
     return[
@@ -20,6 +19,37 @@ const publishAVideovideoValidator = ()=>{
     ]
 }
 
+const getVideoByIdValidator = ()=>{
+    
+    return[
+        param("videoId")
+        .notEmpty().withMessage("Vide Id is required")
+        .isMongoId().withMessage("Invalid videoId")
+    ]
+}
+
+const updateVideoValidator = ()=>{
+  return [
+    param("videoId ")
+    .notEmpty().withMessage("videoId is required")
+    .isMongoId().withMessage("Invalid videoId"),
+
+    body("title")
+    .optional()
+    .trim()
+    .isLength({min :  3 , max : 15})
+    .withMessage("Title must be between 3 and 15 characters"),
+
+    body("description")
+    .optional()
+    .trim()
+    .isLength({min:3 , max :15})
+    .withMessage("Description must be at least 5 characters")
+  ]
+}
 export{
-    publishAVideovideoValidator
+    publishAVideovideoValidator,
+    getVideoByIdValidator,
+    updateVideoValidator
+
 }
