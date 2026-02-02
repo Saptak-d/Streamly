@@ -94,7 +94,7 @@ const getVideoById  = asyncHandler(async(req,res)=>{
 const updateVideo  = asyncHandler(async(req,res)=>{
 
     const {videoId} = req.params;  
-    
+
        const oldvideo  = await Video.findById(videoId)
        
     if (!oldvideo) {
@@ -154,11 +154,6 @@ const updateVideo  = asyncHandler(async(req,res)=>{
 
 const deleteVideo = asyncHandler(async(req,res)=>{
     const {videoId} = req.params
-
-    if(!videoId){
-      throw new ApiError(404,"the video id is required")
-    }
-
      const video = await Video.findById(videoId)
 
       if (!video) {
