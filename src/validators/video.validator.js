@@ -1,5 +1,6 @@
 import { body } from "express-validator";
 import {param} from "express-validator"
+import {query} from "express-validator"
 
 const publishAVideovideoValidator = ()=>{
     return[
