@@ -2,7 +2,7 @@ import { body } from "express-validator";
 import { isBoolean } from "util";
 import { isBooleanObject } from "util/types";
 
-const videoValidator = ()=>{
+const publishAVideovideoValidator = ()=>{
     return[
         body("title")
         .trim()
@@ -18,4 +18,8 @@ const videoValidator = ()=>{
         .notEmpty().withMessage("isPublished or not is required")
         .isBoolean().withMessage("isPublished must be true or false")
     ]
+}
+
+export{
+    publishAVideovideoValidator
 }

@@ -24,10 +24,6 @@ const  publishAVideo  = asyncHandler(async(req, res)=>{
     }
     const {title , description , isPublished } = req.body;
 
-     if(!title ||  !description  || isPublished === "undefined"){
-        throw new ApiError(404,"title , description , isPublished  all this fields are required")
-     }
-
        const existVideo = await Video.findOne({owner : user._id, title })
 
        if( existVideo){
