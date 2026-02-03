@@ -56,11 +56,32 @@ const deleteVideoValidator = ()=>{
         .isMongoId().withMessage("Invalid videoId")
     ]
 }
+
+const togglePublishStatusValidator = ()=>{
+   return[
+     param("videoId")
+     .notEmpty().withMessage("The video Id is required")
+     .isMongoId().withMessage("The id is not a valid id")
+   ]
+}
+
+
+// //page = 1,
+//     limit = 3,
+//     query,
+//     userId
+
+
+
+
 export{
     publishAVideovideoValidator,
     getVideoByIdValidator,
     updateVideoValidator,
     deleteVideoValidator,
+    togglePublishStatusValidator,
+    
+
 
 
 }
