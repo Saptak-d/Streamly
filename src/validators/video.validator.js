@@ -74,23 +74,26 @@ const togglePublishStatusValidator = ()=>{
 
 const getAllVideosValidator = ()=>{
     return[
-        param("page")
+        query("page")
          .optional()
-         .isLength({min : 1 , max : 5})
-         .withMessage("the minimum required is 3 and maximum is 5 for page size "),
+         .isLength({min : 1})
+         .withMessage("Page must be a positive integer "),
          
-         param("limit")
+         query("limit")
           .optional()
          .isLength({min : 1 , max : 5})
          .withMessage("the minimum required is 3 and maximum is 5 for limit size  size "),
 
-         param(query)
-         .optional(),
-
-        param("userId")
-         .notEmpty().withMessage("The user id is required")
-         .isMongoId().withMessage("The user id is not valid ")
-
+         query("query")
+          .optional()
+          .isString()
+          .trim()
+          .isLength({ min: 1 })
+          .withMessage("Search query cannot be empty"),
+ 
+        query("userId")
+         .optional()
+         .isMongoId().withMessage("The user id is not valid")
 
     ]
 }
@@ -101,6 +104,7 @@ export{
     updateVideoValidator,
     deleteVideoValidator,
     togglePublishStatusValidator,
+    getAllVideosValidator
 
 
 

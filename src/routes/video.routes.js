@@ -3,7 +3,7 @@ import {getVideoById, publishAVideo, updateVideo, deleteVideo , togglePublishSta
 
 import { upload } from "../middleware/multer.middleware.js";
 import { verifyJwt } from "../middleware/auth.middleware.js";
-import {publishAVideovideoValidator , getVideoByIdValidator , updateVideoValidator, deleteVideoValidator , togglePublishStatusValidator} from "../validators/video.validator.js"
+import {publishAVideovideoValidator , getVideoByIdValidator , updateVideoValidator, deleteVideoValidator , togglePublishStatusValidator , getAllVideosValidator} from "../validators/video.validator.js"
 import {validate} from "../middleware/validator.middleware.js"
 
 const router  = Router()
@@ -25,7 +25,7 @@ router.route("/getVideoById/:videoId").get(verifyJwt,getVideoByIdValidator(), va
 router.route("/updateVideo/:videoId").patch(verifyJwt,upload.single("thumbnail"),updateVideoValidator(),validate,updateVideo)
 router.route("/deleteVideo/:videoId").delete(verifyJwt,deleteVideoValidator(),validate,deleteVideo)
 router.route("/updatePublishStatus/:videoId").patch(verifyJwt,togglePublishStatusValidator(),validate, togglePublishStatus)
-router.route("/getAllVideos").get(getAllVideos)
+router.route("/getAllVideos").get(getAllVideosValidator(),validate,getAllVideos)
 
 
 
