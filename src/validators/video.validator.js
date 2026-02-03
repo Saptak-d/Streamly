@@ -72,7 +72,28 @@ const togglePublishStatusValidator = ()=>{
 //     userId
 
 
+const getAllVideosValidator = ()=>{
+    return[
+        param("page")
+         .optional()
+         .isLength({min : 1 , max : 5})
+         .withMessage("the minimum required is 3 and maximum is 5 for page size "),
+         
+         param("limit")
+          .optional()
+         .isLength({min : 1 , max : 5})
+         .withMessage("the minimum required is 3 and maximum is 5 for limit size  size "),
 
+         param(query)
+         .optional(),
+
+        param("userId")
+         .notEmpty().withMessage("The user id is required")
+         .isMongoId().withMessage("The user id is not valid ")
+
+
+    ]
+}
 
 export{
     publishAVideovideoValidator,
@@ -80,7 +101,6 @@ export{
     updateVideoValidator,
     deleteVideoValidator,
     togglePublishStatusValidator,
-    
 
 
 
