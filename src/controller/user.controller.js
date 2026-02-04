@@ -517,22 +517,20 @@ const getWatchHistory = asyncHandler(async(req,res)=>{
 
 const forgetsPassword = asyncHandler(async(req,res)=>{
    const {email} = req.body;
-
-   const user = await User.findOne(email)
+   const user = await User.findOne({email})
     .select("-password -refreshToken");
-
    if(!user){
      return res
      .status(200)
      .json(
-      new ApiResponse(200,"The ReSet password link is shared to your Email")
+      new ApiResponse(200,"The ReSet password link is shared to your Email 1")
      )
    }
 
    const {hashedToken , unhashedToken , tokenExpiry} =  user.generateTemporatryToken();
 
    if(!hashedToken || !unhashedToken || !tokenExpiry){
-      throw new ApiError(500,"error while getting tokens")
+      throw new ApiError(500,"error while getting tokens ")
    }
 
    user.forgotpasswordToken = hashedToken;
@@ -540,16 +538,15 @@ const forgetsPassword = asyncHandler(async(req,res)=>{
 
    await user.save({validateBeforeSave : false});
 
-   await sendMail({
+  const sendedMail = await sendMail({
     email : user?.email,
     subject : "Reset your Streamly Account Password",
     mailGenContent : forgotPasswordMailGenCOntent(user.username,``)
    })
-
     return res
      .status(200)
      .json(
-      new ApiResponse(200,"The ReSet password link is shared to your Email")
+      new ApiResponse(200,sendedMail,"The ReSet password link is shared to your Email 2")
      )
 })
 

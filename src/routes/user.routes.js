@@ -54,7 +54,7 @@ router.route("/update-avatar").patch(verifyJwt ,upload.single("avatar"), updateU
 router.route("/update-coverImage").patch(verifyJwt,upload.single("coverImage"),updateUserCoverImage)
 router.route("/UserChannelProfile/:userName").get(verifyJwt , getUserChannelProfileValidator(), validate, getUserChannelProfile)
 router.route("/watch-history").get(verifyJwt,getWatchHistory)
-router.route("/forgetsPassword").get(forgetsPasswordValidator(),validate,forgetsPassword);
+router.route("/forgetsPassword").post(forgetsPasswordValidator(),validate,forgetsPassword);
 
 
 
