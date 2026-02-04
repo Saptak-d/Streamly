@@ -9,7 +9,8 @@ updateAccountDetails,
 updateUserAvatar,
 updateUserCoverImage,
 getUserChannelProfile,
-getWatchHistory
+getWatchHistory,
+forgetsPassword,
  } from "../controller/user.controller.js";
 import {upload} from "../middleware/multer.middleware.js"
 import { verifyJwt } from "../middleware/auth.middleware.js";
@@ -17,10 +18,9 @@ import {userRegistrationValidatot,
         userLoginValidator,
         changeCurrentPasswordValidator,
         updateAccountDetailsValidator,
-        getUserChannelProfileValidator
+        getUserChannelProfileValidator,
+        forgetsPasswordValidator,
 
-    
-    
     } from "../validators/userControllerValidators.js"
 import {validate} from "../middleware/validator.middleware.js"
 
@@ -54,6 +54,7 @@ router.route("/update-avatar").patch(verifyJwt ,upload.single("avatar"), updateU
 router.route("/update-coverImage").patch(verifyJwt,upload.single("coverImage"),updateUserCoverImage)
 router.route("/UserChannelProfile/:userName").get(verifyJwt , getUserChannelProfileValidator(), validate, getUserChannelProfile)
 router.route("/watch-history").get(verifyJwt,getWatchHistory)
+router.route("/forgetsPassword").get(forgetsPasswordValidator(),validate,forgetsPassword);
 
 
 

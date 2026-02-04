@@ -564,5 +564,6 @@ updateAccountDetails,
 updateUserAvatar,
 updateUserCoverImage,
 getUserChannelProfile,
-getWatchHistory
+getWatchHistory,
+forgetsPassword
 }

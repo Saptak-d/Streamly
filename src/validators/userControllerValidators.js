@@ -81,6 +81,14 @@ const  getUserChannelProfileValidator = ()=>{
      ]
 }
 
+const forgetsPasswordValidator = ()=>{
+    return [
+        body("email")
+        .trim()
+        .notEmpty().withMessage("The Email is required")
+        .isEmail().withMessage("invalid Email")
+    ]
+}
 
 export {
     userRegistrationValidatot,
@@ -88,10 +96,5 @@ export {
      changeCurrentPasswordValidator,
      updateAccountDetailsValidator,
      getUserChannelProfileValidator,
-
-
-     
-
-
-
+     forgetsPasswordValidator
 } 
