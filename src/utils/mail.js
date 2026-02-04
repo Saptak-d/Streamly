@@ -66,9 +66,9 @@ const  forgotPasswordMailGenCOntent = (username,passwordResetUrl)=>{
     return {
         body : {
         name: username,
-        intro: 'to change the password click the buttonr',
+        intro: 'Streamly Reset-password',
         action: {
-            instructions: 'To get started with Streamly , please click here:',
+            instructions: 'To change the password Plese click the Button',
             button: {
                 color: '#45db65ff', // Optional action button color
                 text: 'Change  Password',
@@ -78,6 +78,11 @@ const  forgotPasswordMailGenCOntent = (username,passwordResetUrl)=>{
         outro: 'Need help, or have questions? Just reply to this email, we\'d love to help.'
         }
     }
+}
+export{
+    sendMail,
+    forgotPasswordMailGenCOntent,
+    
 }
 
 

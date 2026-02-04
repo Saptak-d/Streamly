@@ -5,6 +5,7 @@ import {uploadOnCloudinary,deleteOnCloudinary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose";
+import {sendMail , forgotPasswordMailGenCOntent} from "../utils/mail.js"
 
 const generateAccessAndRefreshTokes =  async(userID)=>{
   try {
@@ -517,7 +518,8 @@ const getWatchHistory = asyncHandler(async(req,res)=>{
 const forgetsPassword = asyncHandler(async(req,res)=>{
    const {email} = req.body;
 
-   const user = await User.findOne(email);
+   const user = await User.findOne(email)
+    .select("-password -refreshToken");
 
    if(!user){
      return res
@@ -527,11 +529,28 @@ const forgetsPassword = asyncHandler(async(req,res)=>{
      )
    }
 
-   
+   const {hashedToken , unhashedToken , tokenExpiry} =  user.generateTemporatryToken();
 
+   if(!hashedToken || !unhashedToken || !tokenExpiry){
+      throw new ApiError(500,"error while getting tokens")
+   }
 
+   user.forgotpasswordToken = hashedToken;
+   user.forgotpasswordExpiry = tokenExpiry ;
 
+   await user.save({validateBeforeSave : false});
 
+   await sendMail({
+    email : user?.email,
+    subject : "Reset your Streamly Account Password",
+    mailGenContent : forgotPasswordMailGenCOntent(user.username,``)
+   })
+
+    return res
+     .status(200)
+     .json(
+      new ApiResponse(200,"The ReSet password link is shared to your Email")
+     )
 })
 
 export {
