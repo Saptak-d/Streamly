@@ -514,6 +514,25 @@ const getWatchHistory = asyncHandler(async(req,res)=>{
 
 })
 
+const forgetsPassword = asyncHandler(async(req,res)=>{
+   const {email} = req.body;
+
+   const user = await User.findOne(email);
+
+   if(!user){
+     return res
+     .status(200)
+     .json(
+      new ApiResponse(200,"The ReSet password link is shared to your Email")
+     )
+   }
+
+   
+
+
+
+
+})
 
 export {
 registerUser,
