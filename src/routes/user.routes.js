@@ -20,6 +20,7 @@ import {userRegistrationValidatot,
         updateAccountDetailsValidator,
         getUserChannelProfileValidator,
         forgetsPasswordValidator,
+        resetPassword,
 
     } from "../validators/userControllerValidators.js"
 import {validate} from "../middleware/validator.middleware.js"
@@ -55,6 +56,8 @@ router.route("/update-coverImage").patch(verifyJwt,upload.single("coverImage"),u
 router.route("/UserChannelProfile/:userName").get(verifyJwt , getUserChannelProfileValidator(), validate, getUserChannelProfile)
 router.route("/watch-history").get(verifyJwt,getWatchHistory)
 router.route("/forgetsPassword").post(forgetsPasswordValidator(),validate,forgetsPassword);
+router.route("/resetPassword/:unhashedToken").post(resetPassword)
+
 
 
 
