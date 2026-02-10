@@ -541,7 +541,7 @@ const forgetsPassword = asyncHandler(async(req,res)=>{
   const sendedMail = await sendMail({
     email : user?.email,
     subject : "Reset your Streamly Account Password",
-    mailGenContent : forgotPasswordMailGenCOntent(user.username,``)
+    mailGenContent : forgotPasswordMailGenCOntent(user.username,`${req.protocol}://${req.get("host")}/api/v1/users/resetPassword/${unhashedToken}`)
    })
     return res
      .status(200)

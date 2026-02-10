@@ -90,11 +90,23 @@ const forgetsPasswordValidator = ()=>{
     ]
 }
 
+const resetPasswordValidator = ()=>{
+    return [
+        body("newPassword")
+        .trim()
+        .notEmpty().withMessage("The New Password is mandatory"),
+
+        param("unhashedToken")
+        .notEmpty().withMessage("Token is required")
+    ]
+}
+
 export {
     userRegistrationValidatot,
      userLoginValidator,
      changeCurrentPasswordValidator,
      updateAccountDetailsValidator,
      getUserChannelProfileValidator,
-     forgetsPasswordValidator
+     forgetsPasswordValidator,
+     resetPasswordValidator
 } 
