@@ -3,7 +3,6 @@ import nodemailer from "nodemailer"
 import { ApiError } from "./ApiErrors.js";
 
 const sendMail = async (options)=>{
-
     // Configure mailgen
      const mailGenerator = new Mailgen({
         theme: 'default',
@@ -13,19 +12,19 @@ const sendMail = async (options)=>{
        }
    });
 
-
-   let emailText = mailGenerator.generatePlaintext(options.mailGenContent);
-   let emailBody  = mailGenerator.generate(options.mailGenContent)// Generate an HTML email with the provided contents
+   let emailText = mailGenerator.generatePlaintext(options.mailGenContent); 
+   let emailBody  = mailGenerator.generate(options.mailGenContent) // Generate an HTML email with the provided contents
 
    // Create a transporter using Ethereal test credentials.
- // For production, replace with your actual SMTP server details.
+  // For production, replace with your actual SMTP server details
+
   const transporter = nodemailer.createTransport({
    host: process.env.MAILTRAP_SMTP_HOST,
    port: process.env.MAILTRAP_SMTP_PORT,
-   secure: false, // Use true for port 465, false for port 587
+   secure: false, // Use true for port 465, false for port 587  
    auth: {
      user: process.env.MAILTRAP_SMTP_USER,
-     pass:  process.env.MAILTRAP_SMTP_PASS
+     pass: process.env.MAILTRAP_SMTP_PASS,
    },
 });
 
@@ -41,10 +40,9 @@ const sendMail = async (options)=>{
      const result = await transporter.sendMail(mail)
      return result;
   } catch (error) {
-     console.error("Emailed failed ")
+     console.error("Emailed failed")
      throw new ApiError(500,"internal server error",error)
   }
-
 }
 
 const  emailVerificationMailGenContent = (username,verificationUrl)=>{

@@ -6,6 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose";
 import {sendMail , forgotPasswordMailGenCOntent} from "../utils/mail.js"
+import crypto from "crypto"
 
 const generateAccessAndRefreshTokes =  async(userID)=>{
   try {
@@ -123,8 +124,7 @@ const loginUser  = asyncHandler(async(req,res)=>{
       httpOnly  : true,
       secure : true
     }
-     res
-
+     
      return res
      .status(200)
      .cookie("accessToken", accessToken, options)
@@ -530,7 +530,7 @@ const forgetsPassword = asyncHandler(async(req,res)=>{
    const {hashedToken , unhashedToken , tokenExpiry} =  user.generateTemporatryToken();
 
    if(!hashedToken || !unhashedToken || !tokenExpiry){
-      throw new ApiError(500,"error while getting tokens ")
+      throw new ApiError(500,"error while getting tokens")
    }
 
    user.forgotpasswordToken = hashedToken;
@@ -546,14 +546,45 @@ const forgetsPassword = asyncHandler(async(req,res)=>{
     return res
      .status(200)
      .json(
-      new ApiResponse(200,sendedMail,"The ReSet password link is shared to your Email 2")
+      new ApiResponse(200,sendedMail,"The Reset password link is shared to your Email 2")
      )
+})
+
+const resetPassword = asyncHandler(async(req,res)=>{
+
+   const {unhashedToken} = req.params;
+    if(!unhashedToken){
+      throw new ApiError(402,"Invalid Request")
+    }
+    const {newPassword} = req.body;
+   
+    const hashedToken = crypto.createHash("sha256").update(unhashedToken).digest("hex")
+
+    const user = await User.findOne({forgotpasswordToken : hashedToken , forgotpasswordExpiry : {$gt: Date.now()}}).select("-password -refreshToken")
+    
+    if(!user){
+      throw new ApiError(403,"invlid request check your URL")
+    }
+
+    user.password    = newPassword ;
+    user.refreshToken = undefined;
+    user.forgotpasswordToken = undefined;
+    user.forgotpasswordExpiry = undefined;
+     
+    const updatedUser = await user.save();
+
+    return res
+     .status(200)
+     .json(
+      new ApiResponse(200,"The password is changed successfully ")
+     )
+
 })
 
 export {
 registerUser,
 loginUser,
-logOutUser ,
+logOutUser,
 refreshAccessToken,
 changeCurrentPassword,
 getCurrentUser,
@@ -562,5 +593,7 @@ updateUserAvatar,
 updateUserCoverImage,
 getUserChannelProfile,
 getWatchHistory,
-forgetsPassword
+forgetsPassword,
+resetPassword
+
 }
