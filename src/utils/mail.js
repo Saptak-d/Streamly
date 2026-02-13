@@ -19,12 +19,12 @@ const sendMail = async (options)=>{
   // For production, replace with your actual SMTP server details
 
   const transporter = nodemailer.createTransport({
-   host: process.env.MAILTRAP_SMTP_HOST,
-   port: process.env.MAILTRAP_SMTP_PORT,
+   host: process.env.SMTP_HOST,
+   port: process.env.SMTP_PORT,
    secure: false, // Use true for port 465, false for port 587  
    auth: {
-     user: process.env.MAILTRAP_SMTP_USER,
-     pass: process.env.MAILTRAP_SMTP_PASS,
+     user: process.env.SMTP_USER,
+     pass: process.env.SMTP_PASS,
    },
 });
 
