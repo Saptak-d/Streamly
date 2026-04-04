@@ -235,8 +235,6 @@ Only content owners can modify or delete their data
 
 ⚠️ Current Limitations
 
-❌ No request validation library
-
 ❌ No search functionality
 
 ❌ No frontend UI
